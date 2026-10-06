@@ -3,164 +3,194 @@ import requests
 import json
 import re
 import os
+
 from groq import Groq
 from pypdf import PdfReader
 from docx import Document
 
 
 # =========================================================
-# PAGE SETTINGS
+# PAGE CONFIG
 # =========================================================
 
 st.set_page_config(
-    page_title="CareerAI - Smart Job Finder",
-    page_icon="💜",
-    layout="wide"
+    page_title="NEXORA | AI Career Intelligence",
+    page_icon="🧠",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 
 # =========================================================
-# SIMPLE PROFESSIONAL DESIGN
+# DESIGN
 # =========================================================
 
 st.markdown("""
 <style>
 
-.stApp {
-    background-color: #f7f8fc;
-}
+    /* ================================
+       MAIN APP
+       ================================ */
 
-.block-container {
-    max-width: 1150px;
-    padding-top: 2rem;
-    padding-bottom: 3rem;
-}
+    .stApp {
+        background-color: #0b1020;
+        color: #f5f7ff;
+    }
 
-/* Main title */
-.main-title {
-    font-size: 42px;
-    font-weight: 800;
-    color: #17172b;
-    margin-bottom: 5px;
-}
+    .main .block-container {
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+        max-width: 1400px;
+    }
 
-.subtitle {
-    font-size: 17px;
-    color: #667085;
-    margin-bottom: 30px;
-}
 
-/* Cards */
-.card {
-    background-color: white;
-    border: 1px solid #e6e8f0;
-    border-radius: 18px;
-    padding: 25px;
-    margin-bottom: 20px;
-    box-shadow: 0px 6px 20px rgba(20, 20, 50, 0.05);
-}
+    /* ================================
+       ALL TEXT VISIBILITY
+       ================================ */
 
-/* Section headings */
-.section-title {
-    font-size: 25px;
-    font-weight: 750;
-    color: #17172b;
-    margin-top: 25px;
-    margin-bottom: 5px;
-}
+    .stApp p,
+    .stApp span,
+    .stApp label,
+    .stApp li {
+        color: #e8ecff !important;
+    }
 
-.section-text {
-    color: #667085;
-    font-size: 14px;
-    margin-bottom: 20px;
-}
+    h1, h2, h3, h4, h5, h6 {
+        color: #ffffff !important;
+    }
 
-/* Role */
-.role-box {
-    background-color: #f0edff;
-    border: 1px solid #ddd6fe;
-    border-radius: 15px;
-    padding: 22px;
-    text-align: center;
-}
 
-.role-label {
-    color: #6d5bd0;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-}
+    /* ================================
+       SIDEBAR
+       ================================ */
 
-.role-name {
-    color: #29215f;
-    font-size: 28px;
-    font-weight: 800;
-    margin-top: 5px;
-}
+    section[data-testid="stSidebar"] {
+        background-color: #11182d;
+        border-right: 1px solid #293352;
+    }
 
-/* Job cards */
-.job-box {
-    background-color: white;
-    border: 1px solid #e4e7ec;
-    border-radius: 17px;
-    padding: 22px;
-    margin-top: 15px;
-    margin-bottom: 10px;
-}
+    section[data-testid="stSidebar"] p,
+    section[data-testid="stSidebar"] span,
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3,
+    section[data-testid="stSidebar"] h4 {
+        color: #ffffff !important;
+    }
 
-.job-title {
-    font-size: 20px;
-    font-weight: 750;
-    color: #17172b;
-}
 
-.job-company {
-    font-size: 14px;
-    font-weight: 600;
-    color: #344054;
-    margin-top: 9px;
-}
+    /* ================================
+       FILE UPLOADER
+       ================================ */
 
-.job-location {
-    font-size: 13px;
-    color: #667085;
-    margin-top: 5px;
-}
+    [data-testid="stFileUploader"] {
+        background-color: #18213b;
+        border: 1px solid #354266;
+        border-radius: 16px;
+        padding: 10px;
+    }
 
-.job-description {
-    font-size: 13px;
-    line-height: 1.6;
-    color: #667085;
-    margin-top: 14px;
-}
+    [data-testid="stFileUploader"] * {
+        color: #ffffff !important;
+    }
 
-/* Skill */
-.skill {
-    display: inline-block;
-    background-color: #f4f3ff;
-    color: #5746af;
-    border: 1px solid #ddd6fe;
-    padding: 6px 12px;
-    border-radius: 20px;
-    margin: 4px;
-    font-size: 13px;
-    font-weight: 600;
-}
 
-/* Buttons */
-.stButton > button {
-    border-radius: 12px;
-    min-height: 48px;
-    font-weight: 700;
-}
+    /* ================================
+       INPUT
+       ================================ */
 
-/* Footer */
-.footer {
-    text-align: center;
-    color: #98a2b3;
-    font-size: 12px;
-    margin-top: 50px;
-}
+    .stTextInput input {
+        background-color: #18213b !important;
+        color: #ffffff !important;
+        border: 1px solid #354266 !important;
+        border-radius: 10px !important;
+    }
+
+    .stTextInput input::placeholder {
+        color: #aeb8d4 !important;
+    }
+
+
+    /* ================================
+       BUTTONS
+       ================================ */
+
+    .stButton > button {
+        background-color: #7c3aed;
+        color: #ffffff !important;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        min-height: 45px;
+    }
+
+    .stButton > button:hover {
+        background-color: #8b5cf6;
+        color: #ffffff !important;
+    }
+
+
+    /* ================================
+       METRICS
+       ================================ */
+
+    [data-testid="stMetric"] {
+        background-color: #151e36;
+        border: 1px solid #303c60;
+        border-radius: 16px;
+        padding: 18px;
+    }
+
+    [data-testid="stMetricLabel"] {
+        color: #aeb8d4 !important;
+    }
+
+    [data-testid="stMetricValue"] {
+        color: #ffffff !important;
+    }
+
+
+    /* ================================
+       EXPANDERS
+       ================================ */
+
+    [data-testid="stExpander"] {
+        background-color: #151e36;
+        border: 1px solid #303c60;
+        border-radius: 14px;
+    }
+
+    [data-testid="stExpander"] * {
+        color: #ffffff !important;
+    }
+
+
+    /* ================================
+       ALERTS
+       ================================ */
+
+    .stAlert p {
+        color: #ffffff !important;
+    }
+
+
+    /* ================================
+       LINKS
+       ================================ */
+
+    a {
+        color: #a78bfa !important;
+    }
+
+
+    /* ================================
+       DIVIDER
+       ================================ */
+
+    hr {
+        border-color: #293352 !important;
+    }
 
 </style>
 """, unsafe_allow_html=True)
@@ -187,200 +217,121 @@ ADZUNA_APP_KEY = st.secrets.get(
 
 
 # =========================================================
-# API VALIDATION
+# SIDEBAR
 # =========================================================
 
-if not GROQ_API_KEY:
+with st.sidebar:
 
-    st.error("Groq API key is missing.")
+    st.title("🧠 NEXORA")
 
-    st.info(
-        "Please add GROQ_API_KEY in Streamlit Secrets."
+    st.caption(
+        "AI Career Intelligence Platform"
     )
 
-    st.stop()
+    st.divider()
 
-
-if not ADZUNA_APP_ID or not ADZUNA_APP_KEY:
-
-    st.error("Adzuna API credentials are missing.")
-
-    st.info(
-        "Please add ADZUNA_APP_ID and ADZUNA_APP_KEY "
-        "in Streamlit Secrets."
-    )
-
-    st.stop()
-
-
-client = Groq(
-    api_key=GROQ_API_KEY
-)
-
-
-# =========================================================
-# HEADER
-# =========================================================
-
-st.markdown(
-    '<div class="main-title">💜 CareerAI</div>',
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    '<div class="subtitle">'
-    'Turn your resume into your next career opportunity.'
-    '</div>',
-    unsafe_allow_html=True
-)
-
-
-# =========================================================
-# INTRO
-# =========================================================
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-
-    st.markdown(
-        '<div class="card">'
-        '<h3>📄 Resume Analysis</h3>'
-        '<p>AI reads your resume and understands your technical profile.</p>'
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-with col2:
-
-    st.markdown(
-        '<div class="card">'
-        '<h3>🧠 Career Intelligence</h3>'
-        '<p>Identify the most suitable technical role and skills.</p>'
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-with col3:
-
-    st.markdown(
-        '<div class="card">'
-        '<h3>💼 Job Discovery</h3>'
-        '<p>Find relevant job opportunities based on your profile.</p>'
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-
-# =========================================================
-# INPUT SECTION
-# =========================================================
-
-st.markdown(
-    '<div class="section-title">Start your job search</div>',
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    '<div class="section-text">'
-    'Upload your resume and choose your preferred job location.'
-    '</div>',
-    unsafe_allow_html=True
-)
-
-
-input_col1, input_col2 = st.columns(2)
-
-
-with input_col1:
+    st.subheader("📄 Upload Resume")
 
     uploaded_file = st.file_uploader(
-        "Upload your resume",
+        "Choose your resume",
         type=["pdf", "docx", "txt"],
-        help="Supported formats: PDF, DOCX and TXT"
+        help="PDF, DOCX and TXT files are supported."
     )
 
+    st.write("")
 
-with input_col2:
+    st.subheader("📍 Job Location")
 
     location = st.text_input(
-        "Preferred job location",
+        "Preferred location",
+        value="India",
         placeholder="Example: Chennai"
     )
 
+    st.divider()
 
-st.write("")
+    st.subheader("⚡ Platform Flow")
 
+    st.write("01  📄 Resume Intelligence")
+    st.caption(
+        "Understand your education, experience and technical profile."
+    )
 
-analyze = st.button(
-    "✨ Analyze Resume & Find Jobs",
-    type="primary",
-    use_container_width=True
-)
+    st.write("02  🧠 Career Matching")
+    st.caption(
+        "Identify a suitable technical role from your profile."
+    )
+
+    st.write("03  💼 Opportunity Discovery")
+    st.caption(
+        "Find relevant job opportunities based on your role."
+    )
+
+    st.divider()
+
+    st.caption(
+        "NEXORA Career Intelligence • 2026"
+    )
 
 
 # =========================================================
-# READ RESUME
+# FUNCTIONS
 # =========================================================
 
-def read_resume(file):
+def extract_resume_text(uploaded_file):
 
-    filename = file.name.lower()
+    file_name = uploaded_file.name.lower()
 
-    # PDF
-    if filename.endswith(".pdf"):
+    try:
 
-        reader = PdfReader(file)
+        if file_name.endswith(".pdf"):
 
-        text = ""
+            reader = PdfReader(uploaded_file)
 
-        for page in reader.pages:
+            text = ""
 
-            page_text = page.extract_text()
+            for page in reader.pages:
 
-            if page_text:
-                text += page_text + "\n"
+                page_text = page.extract_text()
 
-        return text.strip()
+                if page_text:
+                    text += page_text + "\n"
 
+            return text
 
-    # DOCX
-    elif filename.endswith(".docx"):
+        elif file_name.endswith(".docx"):
 
-        document = Document(file)
+            document = Document(uploaded_file)
 
-        text = "\n".join(
-            paragraph.text
-            for paragraph in document.paragraphs
-            if paragraph.text.strip()
+            return "\n".join(
+                paragraph.text
+                for paragraph in document.paragraphs
+            )
+
+        elif file_name.endswith(".txt"):
+
+            return uploaded_file.read().decode(
+                "utf-8",
+                errors="ignore"
+            )
+
+        return ""
+
+    except Exception as e:
+
+        st.error(
+            f"Unable to read the resume: {e}"
         )
 
-        return text.strip()
+        return ""
 
-
-    # TXT
-    elif filename.endswith(".txt"):
-
-        return file.read().decode(
-            "utf-8",
-            errors="ignore"
-        )
-
-
-    else:
-
-        raise ValueError(
-            "Unsupported file format."
-        )
-
-
-# =========================================================
-# CLEAN RESUME
-# =========================================================
 
 def clean_resume(text):
 
-    text = text.lower()
+    text = text.replace(
+        "\x00",
+        " "
+    )
 
     text = re.sub(
         r"\s+",
@@ -389,7 +340,7 @@ def clean_resume(text):
     )
 
     text = re.sub(
-        r"[^a-zA-Z0-9+.#\s]",
+        r"[^\w\s\+\#\.\-/]",
         " ",
         text
     )
@@ -397,435 +348,550 @@ def clean_resume(text):
     return text.strip()
 
 
-# =========================================================
-# AI ANALYSIS
-# =========================================================
-
 def analyze_resume(resume_text):
 
-    prompt = f"""
-You are an AI resume analysis system.
+    if not GROQ_API_KEY:
 
-Analyze the resume and identify the most suitable
-technical job role and important technical skills.
+        return None, "Groq API key is missing."
 
-Rules:
+    try:
 
-1. Return ONLY valid JSON.
-2. Do not return markdown.
-3. Do not explain your answer.
-4. Do not invent information.
-5. Choose ONE primary technical role.
-6. Role must contain a maximum of 3 words.
-7. Select a maximum of 6 technical skills.
-8. Only select skills supported by the resume.
+        client = Groq(
+            api_key=GROQ_API_KEY
+        )
 
-Return exactly this structure:
+        prompt = f"""
+You are an AI career assistant.
+
+Analyze this resume.
+
+Identify:
+
+1. The most suitable technical job role.
+2. Technical skills found in the resume.
+
+Return ONLY valid JSON.
+
+Required format:
 
 {{
-    "role": "Data Scientist",
+    "role": "Data Analyst",
     "skills": [
         "Python",
         "SQL",
-        "Machine Learning"
+        "Excel"
     ]
 }}
 
 Resume:
 
-{resume_text}
+{resume_text[:12000]}
 """
 
-    response = client.chat.completions.create(
+        response = client.chat.completions.create(
 
-        model="openai/gpt-oss-20b",
+            model="openai/gpt-oss-20b",
 
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
 
-        temperature=0
-    )
-
-    result = response.choices[0].message.content.strip()
-
-    result = re.sub(
-        r"```json|```",
-        "",
-        result
-    ).strip()
-
-    return json.loads(result)
-
-
-# =========================================================
-# ADZUNA JOB SEARCH
-# =========================================================
-
-def search_jobs(
-    role,
-    skills,
-    location
-):
-
-    url = (
-        "https://api.adzuna.com/"
-        "v1/api/jobs/in/search/1"
-    )
-
-    params = {
-
-        "app_id": ADZUNA_APP_ID,
-
-        "app_key": ADZUNA_APP_KEY,
-
-        "what": role,
-
-        "where": location,
-
-        "results_per_page": 10
-    }
-
-    response = requests.get(
-        url,
-        params=params,
-        timeout=30
-    )
-
-    if response.status_code != 200:
-
-        raise Exception(
-            f"Adzuna API error: "
-            f"{response.status_code}"
+            temperature=0.2
         )
 
-    data = response.json()
+        result = response.choices[0].message.content.strip()
 
-    return data.get(
-        "results",
-        []
-    )
-
-
-# =========================================================
-# SHOW JOB
-# =========================================================
-
-def show_job(
-    number,
-    job
-):
-
-    title = job.get(
-        "title",
-        "Job title unavailable"
-    )
-
-    company = job.get(
-        "company",
-        {}
-    ).get(
-        "display_name",
-        "Company not specified"
-    )
-
-    job_location = job.get(
-        "location",
-        {}
-    ).get(
-        "display_name",
-        "Location not specified"
-    )
-
-    description = job.get(
-        "description",
-        ""
-    )
-
-    if len(description) > 280:
-
-        description = (
-            description[:280]
-            + "..."
+        result = result.replace(
+            "```json",
+            ""
         )
 
-    apply_url = job.get(
-        "redirect_url",
-        "#"
-    )
-
-
-    st.markdown(
-        f"""
-        <div class="job-box">
-
-        <div class="job-title">
-        {number}. {title}
-        </div>
-
-        <div class="job-company">
-        🏢 {company}
-        </div>
-
-        <div class="job-location">
-        📍 {job_location}
-        </div>
-
-        <div class="job-description">
-        {description}
-        </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-    st.link_button(
-        "View & Apply →",
-        apply_url,
-        use_container_width=True
-    )
-
-
-# =========================================================
-# MAIN PROCESS
-# =========================================================
-
-if analyze:
-
-    # -----------------------------------------------------
-    # VALIDATION
-    # -----------------------------------------------------
-
-    if uploaded_file is None:
-
-        st.warning(
-            "Please upload your resume first."
+        result = result.replace(
+            "```",
+            ""
         )
 
-        st.stop()
-
-
-    if not location.strip():
-
-        st.warning(
-            "Please enter your preferred location."
+        match = re.search(
+            r"\{.*\}",
+            result,
+            re.DOTALL
         )
 
-        st.stop()
+        if match:
+            result = match.group(0)
 
+        data = json.loads(result)
 
-    try:
-
-        # -------------------------------------------------
-        # STEP 1
-        # -------------------------------------------------
-
-        with st.spinner(
-            "📖 Reading your resume..."
-        ):
-
-            resume_text = read_resume(
-                uploaded_file
-            )
-
-
-        if not resume_text:
-
-            st.error(
-                "Could not extract text from your resume."
-            )
-
-            st.stop()
-
-
-        # -------------------------------------------------
-        # STEP 2
-        # -------------------------------------------------
-
-        with st.spinner(
-            "🧠 AI is analyzing your profile..."
-        ):
-
-            cleaned_text = clean_resume(
-                resume_text
-            )
-
-            analysis = analyze_resume(
-                cleaned_text
-            )
-
-
-        role = analysis.get(
+        role = data.get(
             "role",
             "Technical Professional"
         )
 
-        skills = analysis.get(
+        skills = data.get(
             "skills",
             []
         )
 
+        if not isinstance(skills, list):
+            skills = []
 
-        # -------------------------------------------------
-        # PROFILE RESULT
-        # -------------------------------------------------
+        return {
+            "role": role,
+            "skills": skills
+        }, None
 
-        st.markdown(
-            '<div class="section-title">'
-            'Your AI Career Profile'
-            '</div>',
-            unsafe_allow_html=True
+    except Exception as e:
+
+        return None, str(e)
+
+
+def search_jobs(role, skills, location):
+
+    if not ADZUNA_APP_ID or not ADZUNA_APP_KEY:
+
+        return [], "Adzuna credentials are missing."
+
+    try:
+
+        url = (
+            "https://api.adzuna.com/v1/api/jobs/in/search/1"
         )
 
-        st.markdown(
-            '<div class="section-text">'
-            'Based on the information identified in your resume.'
-            '</div>',
-            unsafe_allow_html=True
+        skill_text = " ".join(
+            str(skill)
+            for skill in skills[:3]
         )
 
+        search_term = (
+            f"{role} {skill_text}"
+        ).strip()
 
-        profile_col1, profile_col2 = st.columns(
-            [1, 2],
-            gap="large"
+        params = {
+
+            "app_id": ADZUNA_APP_ID,
+
+            "app_key": ADZUNA_APP_KEY,
+
+            "what": search_term,
+
+            "where": location,
+
+            "results_per_page": 10,
+
+            "content-type": "application/json"
+        }
+
+        response = requests.get(
+            url,
+            params=params,
+            timeout=20
         )
 
+        response.raise_for_status()
 
-        with profile_col1:
+        data = response.json()
 
-            st.markdown(
-                f"""
-                <div class="role-box">
+        return data.get(
+            "results",
+            []
+        ), None
 
-                <div class="role-label">
-                Recommended Role
-                </div>
+    except Exception as e:
 
-                <div class="role-name">
-                {role}
-                </div>
+        return [], str(e)
 
-                </div>
-                """,
-                unsafe_allow_html=True
+
+# =========================================================
+# MAIN HEADER
+# =========================================================
+
+st.title("🧠 NEXORA")
+
+st.subheader(
+    "AI Career Intelligence for Your Next Opportunity"
+)
+
+st.write(
+    "Turn your resume into a career profile, "
+    "discover your strongest technical role, "
+    "and explore relevant job opportunities."
+)
+
+st.divider()
+
+
+# =========================================================
+# EMPTY STATE
+# =========================================================
+
+if not uploaded_file:
+
+    st.header("🚀 Begin Your Career Analysis")
+
+    st.write(
+        "Your resume is the starting point. "
+        "Upload it from the sidebar and let NEXORA analyze your profile."
+    )
+
+    st.write("")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+
+        st.metric(
+            "STEP 01",
+            "Resume Intelligence"
+        )
+
+        st.write(
+            "Extract useful information from your resume "
+            "and understand your technical background."
+        )
+
+    with col2:
+
+        st.metric(
+            "STEP 02",
+            "Career Matching"
+        )
+
+        st.write(
+            "Identify a suitable technical role based "
+            "on your skills and profile."
+        )
+
+    with col3:
+
+        st.metric(
+            "STEP 03",
+            "Job Discovery"
+        )
+
+        st.write(
+            "Search for relevant job opportunities "
+            "in your preferred location."
+        )
+
+    st.divider()
+
+    st.header("✨ Why NEXORA?")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        st.subheader("🎯 Personalized")
+
+        st.write(
+            "Recommendations are generated from "
+            "your own resume instead of a generic job list."
+        )
+
+    with col2:
+
+        st.subheader("⚡ Simple")
+
+        st.write(
+            "Upload once, analyze your profile, "
+            "and explore suitable opportunities."
+        )
+
+    st.stop()
+
+
+# =========================================================
+# RESUME PROCESSING
+# =========================================================
+
+st.header("📄 Resume Intelligence")
+
+st.write(
+    f"Selected resume: **{uploaded_file.name}**"
+)
+
+with st.spinner(
+    "Reading your resume..."
+):
+
+    resume_text = extract_resume_text(
+        uploaded_file
+    )
+
+
+if not resume_text.strip():
+
+    st.error(
+        "No readable text was found in the uploaded resume."
+    )
+
+    st.info(
+        "Try a text-based PDF, DOCX or TXT file."
+    )
+
+    st.stop()
+
+
+cleaned_text = clean_resume(
+    resume_text
+)
+
+
+# =========================================================
+# AI ANALYSIS
+# =========================================================
+
+with st.spinner(
+    "🧠 NEXORA is analyzing your technical profile..."
+):
+
+    analysis, error = analyze_resume(
+        cleaned_text
+    )
+
+
+if error:
+
+    st.error(
+        f"AI analysis failed: {error}"
+    )
+
+    st.stop()
+
+
+role = analysis["role"]
+
+skills = analysis["skills"]
+
+
+st.success(
+    "Resume analysis completed successfully."
+)
+
+
+# =========================================================
+# PROFILE OVERVIEW
+# =========================================================
+
+st.divider()
+
+st.header("🎯 Your Career Profile")
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+
+    st.metric(
+        "Recommended Role",
+        role
+    )
+
+with col2:
+
+    st.metric(
+        "Skills Identified",
+        len(skills)
+    )
+
+with col3:
+
+    st.metric(
+        "Search Location",
+        location
+    )
+
+
+st.write("")
+
+st.subheader("💡 AI Career Insight")
+
+st.write(
+    f"Based on your resume, **{role}** appears to be "
+    "one of the most suitable technical career directions "
+    "for your current profile."
+)
+
+
+# =========================================================
+# SKILLS
+# =========================================================
+
+st.divider()
+
+st.header("🛠️ Technical Skill Profile")
+
+if skills:
+
+    st.write(
+        "The following technical skills were identified "
+        "from your resume:"
+    )
+
+    skill_columns = st.columns(
+        min(len(skills), 4)
+    )
+
+    for index, skill in enumerate(skills):
+
+        with skill_columns[index % len(skill_columns)]:
+
+            st.info(
+                f"✓ {skill}"
             )
 
+else:
 
-        with profile_col2:
-
-            st.markdown(
-                '<div class="card">'
-                '<b>🛠 Technical Skills Identified</b>'
-                '</div>',
-                unsafe_allow_html=True
-            )
-
-            skill_html = ""
-
-            for skill in skills:
-
-                skill_html += (
-                    f'<span class="skill">'
-                    f'{skill}'
-                    f'</span>'
-                )
-
-            st.markdown(
-                skill_html,
-                unsafe_allow_html=True
-            )
+    st.warning(
+        "No specific technical skills were detected."
+    )
 
 
-        # -------------------------------------------------
-        # STEP 3
-        # -------------------------------------------------
+# =========================================================
+# JOB RECOMMENDATIONS
+# =========================================================
 
-        st.markdown(
-            '<div class="section-title">'
-            'Recommended Opportunities'
-            '</div>',
-            unsafe_allow_html=True
+st.divider()
+
+st.header("💼 Opportunity Discovery")
+
+st.write(
+    f"Finding **{role}** opportunities around **{location}**..."
+)
+
+
+with st.spinner(
+    "🔎 Searching for relevant jobs..."
+):
+
+    jobs, job_error = search_jobs(
+        role,
+        skills,
+        location
+    )
+
+
+if job_error:
+
+    st.error(
+        f"Job search failed: {job_error}"
+    )
+
+elif not jobs:
+
+    st.warning(
+        "No matching jobs were found right now."
+    )
+
+    st.write(
+        "Try changing the preferred location "
+        "from the sidebar."
+    )
+
+else:
+
+    st.success(
+        f"{len(jobs)} job opportunities found."
+    )
+
+    for index, job in enumerate(
+        jobs,
+        start=1
+    ):
+
+        title = job.get(
+            "title",
+            "Job Opportunity"
         )
 
-        st.markdown(
-            f"""
-            <div class="section-text">
-            Searching for <b>{role}</b> opportunities
-            in <b>{location}</b>.
-            </div>
-            """,
-            unsafe_allow_html=True
+        company_data = job.get(
+            "company",
+            {}
         )
 
+        company = company_data.get(
+            "display_name",
+            "Company not specified"
+        )
 
-        with st.spinner(
-            "🔎 Finding relevant jobs..."
+        location_data = job.get(
+            "location",
+            {}
+        )
+
+        job_location = location_data.get(
+            "display_name",
+            location
+        )
+
+        description = job.get(
+            "description",
+            "No description available."
+        )
+
+        apply_url = job.get(
+            "redirect_url",
+            ""
+        )
+
+        with st.expander(
+            f"💼 {index}. {title}"
         ):
 
-            jobs = search_jobs(
-                role,
-                skills,
-                location
+            col1, col2 = st.columns(2)
+
+            with col1:
+
+                st.write(
+                    f"**Company**  \n{company}"
+                )
+
+            with col2:
+
+                st.write(
+                    f"**Location**  \n{job_location}"
+                )
+
+            st.divider()
+
+            st.write(
+                "**Job Description**"
             )
 
-
-        if not jobs:
-
-            st.warning(
-                f"No matching jobs were found for {location}."
+            st.write(
+                description
             )
 
+            if apply_url:
 
-        else:
-
-            st.success(
-                f"Found {len(jobs)} job opportunities."
-            )
-
-
-            for index, job in enumerate(
-                jobs,
-                start=1
-            ):
-
-                show_job(
-                    index,
-                    job
+                st.link_button(
+                    "🔗 View / Apply for Job",
+                    apply_url
                 )
 
 
-    except json.JSONDecodeError:
-
-        st.error(
-            "AI returned an unexpected response. "
-            "Please try again."
-        )
-
-
-    except Exception as error:
-
-        st.error(
-            "Something went wrong while processing your request."
-        )
-
-        st.exception(error)
-
-
 # =========================================================
-# FOOTER
+# FINAL SECTION
 # =========================================================
 
-st.markdown(
-    """
-    <div class="footer">
-    CareerAI · AI-Powered Job Recommendation System<br>
-    Resume Analysis • AI Career Matching • Job Discovery
-    </div>
-    """,
-    unsafe_allow_html=True
+st.divider()
+
+st.header("🌟 Your Next Step")
+
+st.write(
+    "Use the recommended role and detected skills "
+    "as a starting point for your job search."
+)
+
+st.info(
+    "Tip: Keep your resume updated with relevant "
+    "projects, technical skills and certifications."
+)
+
+st.divider()
+
+st.caption(
+    "NEXORA • AI Career Intelligence Platform • 2026"
 )
