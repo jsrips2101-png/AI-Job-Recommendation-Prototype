@@ -3,405 +3,163 @@ import requests
 import json
 import re
 import os
-import html
-
 from groq import Groq
 from pypdf import PdfReader
 from docx import Document
 
 
 # =========================================================
-# PAGE CONFIG
+# PAGE SETTINGS
 # =========================================================
 
 st.set_page_config(
-    page_title="CareerAI | Smart Job Discovery",
-    page_icon="✦",
-    layout="wide",
-    initial_sidebar_state="collapsed"
+    page_title="CareerAI - Smart Job Finder",
+    page_icon="💜",
+    layout="wide"
 )
 
 
 # =========================================================
-# CUSTOM DESIGN
+# SIMPLE PROFESSIONAL DESIGN
 # =========================================================
 
 st.markdown("""
 <style>
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-html, body, [class*="css"] {
-    font-family: 'Inter', sans-serif;
-}
-
 .stApp {
-    background:
-        radial-gradient(circle at 10% 10%, rgba(99,102,241,0.08), transparent 25%),
-        radial-gradient(circle at 90% 20%, rgba(14,165,233,0.08), transparent 25%),
-        #f8fafc;
-    color: #0f172a;
+    background-color: #f7f8fc;
 }
 
 .block-container {
-    max-width: 1180px;
+    max-width: 1150px;
     padding-top: 2rem;
-    padding-bottom: 4rem;
+    padding-bottom: 3rem;
 }
 
-
-/* ---------------------------------------------------------
-   HIDE DEFAULT STREAMLIT ELEMENTS
---------------------------------------------------------- */
-
-#MainMenu {
-    visibility: hidden;
-}
-
-footer {
-    visibility: hidden;
-}
-
-header {
-    background: transparent !important;
-}
-
-
-/* ---------------------------------------------------------
-   TOP NAVIGATION
---------------------------------------------------------- */
-
-.navbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 4px 30px 4px;
-}
-
-.brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.brand-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 13px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white !important;
-    font-size: 21px;
+/* Main title */
+.main-title {
+    font-size: 42px;
     font-weight: 800;
-    box-shadow: 0 8px 20px rgba(99,102,241,0.25);
-}
-
-.brand-name {
-    font-size: 21px;
-    font-weight: 800;
-    color: #0f172a !important;
-}
-
-.brand-name span {
-    color: #6366f1 !important;
-}
-
-
-/* ---------------------------------------------------------
-   HERO
---------------------------------------------------------- */
-
-.hero {
-    position: relative;
-    overflow: hidden;
-    border-radius: 30px;
-    padding: 60px 55px;
-    margin-bottom: 28px;
-    background:
-        radial-gradient(circle at 85% 20%, rgba(255,255,255,0.20), transparent 20%),
-        radial-gradient(circle at 10% 100%, rgba(255,255,255,0.12), transparent 25%),
-        linear-gradient(135deg, #111827, #312e81 55%, #4f46e5);
-    box-shadow: 0 20px 50px rgba(49,46,129,0.20);
-}
-
-.hero-kicker {
-    color: #c7d2fe !important;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-}
-
-.hero h1 {
-    color: white !important;
-    font-size: 46px;
-    line-height: 1.1;
-    max-width: 720px;
-    margin: 0 0 18px 0;
-    font-weight: 800;
-}
-
-.hero p {
-    color: #e0e7ff !important;
-    font-size: 17px;
-    line-height: 1.7;
-    max-width: 650px;
-    margin-bottom: 0;
-}
-
-.hero-orb {
-    position: absolute;
-    right: 65px;
-    top: 55px;
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.12);
-}
-
-
-/* ---------------------------------------------------------
-   SECTION TITLE
---------------------------------------------------------- */
-
-.section-title {
-    color: #0f172a !important;
-    font-size: 25px;
-    font-weight: 800;
-    margin: 35px 0 8px 0;
-}
-
-.section-subtitle {
-    color: #64748b !important;
-    font-size: 14px;
-    margin-bottom: 22px;
-}
-
-
-/* ---------------------------------------------------------
-   UPLOAD CARD
---------------------------------------------------------- */
-
-.upload-card {
-    background: rgba(255,255,255,0.88);
-    border: 1px solid #e2e8f0;
-    border-radius: 24px;
-    padding: 28px;
-    box-shadow: 0 10px 35px rgba(15,23,42,0.06);
-}
-
-.upload-title {
-    color: #0f172a !important;
-    font-size: 19px;
-    font-weight: 700;
+    color: #17172b;
     margin-bottom: 5px;
 }
 
-.upload-text {
-    color: #64748b !important;
-    font-size: 13px;
-    margin-bottom: 18px;
+.subtitle {
+    font-size: 17px;
+    color: #667085;
+    margin-bottom: 30px;
 }
 
-
-/* ---------------------------------------------------------
-   INPUTS
---------------------------------------------------------- */
-
-div[data-baseweb="input"] {
-    border-radius: 12px !important;
+/* Cards */
+.card {
+    background-color: white;
+    border: 1px solid #e6e8f0;
+    border-radius: 18px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0px 6px 20px rgba(20, 20, 50, 0.05);
 }
 
-div[data-baseweb="input"] > div {
-    border-radius: 12px !important;
-    border-color: #dbe2ea !important;
-    background: white !important;
+/* Section headings */
+.section-title {
+    font-size: 25px;
+    font-weight: 750;
+    color: #17172b;
+    margin-top: 25px;
+    margin-bottom: 5px;
 }
 
-div[data-baseweb="input"] input {
-    color: #0f172a !important;
+.section-text {
+    color: #667085;
+    font-size: 14px;
+    margin-bottom: 20px;
 }
 
-label {
-    color: #334155 !important;
-    font-weight: 600 !important;
+/* Role */
+.role-box {
+    background-color: #f0edff;
+    border: 1px solid #ddd6fe;
+    border-radius: 15px;
+    padding: 22px;
+    text-align: center;
 }
 
-
-/* ---------------------------------------------------------
-   BUTTON
---------------------------------------------------------- */
-
-.stButton > button {
-    width: 100%;
-    border-radius: 13px;
-    min-height: 50px;
-    border: none;
-    background: linear-gradient(135deg, #6366f1, #7c3aed);
-    color: white !important;
-    font-size: 15px;
-    font-weight: 700;
-    box-shadow: 0 10px 25px rgba(99,102,241,0.22);
-    transition: all 0.2s ease;
-}
-
-.stButton > button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 30px rgba(99,102,241,0.30);
-}
-
-
-/* ---------------------------------------------------------
-   PROFILE CARD
---------------------------------------------------------- */
-
-.profile-card {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 24px;
-    padding: 28px;
-    box-shadow: 0 10px 35px rgba(15,23,42,0.06);
-    margin-top: 20px;
-}
-
-.profile-label {
-    color: #64748b !important;
+.role-label {
+    color: #6d5bd0;
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
-.profile-role {
-    color: #0f172a !important;
-    font-size: 30px;
+.role-name {
+    color: #29215f;
+    font-size: 28px;
     font-weight: 800;
-    margin: 5px 0 15px 0;
+    margin-top: 5px;
 }
 
-.skill-chip {
-    display: inline-block;
-    background: #eef2ff;
-    color: #4338ca !important;
-    border: 1px solid #c7d2fe;
-    padding: 7px 13px;
-    border-radius: 999px;
-    margin: 4px 5px 4px 0;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-
-/* ---------------------------------------------------------
-   JOB CARD
---------------------------------------------------------- */
-
-.job-card {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 22px;
-    padding: 24px;
-    margin: 15px 0;
-    box-shadow: 0 8px 28px rgba(15,23,42,0.05);
-}
-
-.job-number {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 9px;
-    background: #eef2ff;
-    color: #4f46e5 !important;
-    font-size: 12px;
-    font-weight: 800;
-    margin-right: 9px;
+/* Job cards */
+.job-box {
+    background-color: white;
+    border: 1px solid #e4e7ec;
+    border-radius: 17px;
+    padding: 22px;
+    margin-top: 15px;
+    margin-bottom: 10px;
 }
 
 .job-title {
-    color: #0f172a !important;
     font-size: 20px;
-    font-weight: 800;
+    font-weight: 750;
+    color: #17172b;
 }
 
 .job-company {
-    color: #334155 !important;
     font-size: 14px;
     font-weight: 600;
-    margin-top: 10px;
+    color: #344054;
+    margin-top: 9px;
 }
 
 .job-location {
-    color: #64748b !important;
     font-size: 13px;
-    margin-top: 6px;
+    color: #667085;
+    margin-top: 5px;
 }
 
 .job-description {
-    color: #64748b !important;
     font-size: 13px;
-    line-height: 1.7;
-    margin-top: 15px;
-}
-
-.match {
-    display: inline-block;
-    background: #ecfdf5;
-    color: #047857 !important;
-    border: 1px solid #a7f3d0;
-    padding: 6px 11px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
-    margin-top: 12px;
-}
-
-
-/* ---------------------------------------------------------
-   INFO CARDS
---------------------------------------------------------- */
-
-.info-card {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 20px;
-    padding: 22px;
-    height: 100%;
-    box-shadow: 0 8px 25px rgba(15,23,42,0.04);
-}
-
-.info-icon {
-    font-size: 25px;
-    margin-bottom: 12px;
-}
-
-.info-title {
-    color: #0f172a !important;
-    font-weight: 700;
-    font-size: 15px;
-}
-
-.info-text {
-    color: #64748b !important;
-    font-size: 12px;
     line-height: 1.6;
+    color: #667085;
+    margin-top: 14px;
 }
 
+/* Skill */
+.skill {
+    display: inline-block;
+    background-color: #f4f3ff;
+    color: #5746af;
+    border: 1px solid #ddd6fe;
+    padding: 6px 12px;
+    border-radius: 20px;
+    margin: 4px;
+    font-size: 13px;
+    font-weight: 600;
+}
 
-/* ---------------------------------------------------------
-   FOOTER
---------------------------------------------------------- */
+/* Buttons */
+.stButton > button {
+    border-radius: 12px;
+    min-height: 48px;
+    font-weight: 700;
+}
 
+/* Footer */
 .footer {
     text-align: center;
-    padding: 35px 0 10px 0;
-    color: #94a3b8 !important;
+    color: #98a2b3;
     font-size: 12px;
+    margin-top: 50px;
 }
 
 </style>
@@ -429,149 +187,147 @@ ADZUNA_APP_KEY = st.secrets.get(
 
 
 # =========================================================
-# API CHECK
+# API VALIDATION
 # =========================================================
 
 if not GROQ_API_KEY:
+
     st.error("Groq API key is missing.")
-    st.info("Add GROQ_API_KEY in your Streamlit app Secrets.")
+
+    st.info(
+        "Please add GROQ_API_KEY in Streamlit Secrets."
+    )
+
     st.stop()
+
 
 if not ADZUNA_APP_ID or not ADZUNA_APP_KEY:
+
     st.error("Adzuna API credentials are missing.")
-    st.info("Add ADZUNA_APP_ID and ADZUNA_APP_KEY in your Streamlit app Secrets.")
+
+    st.info(
+        "Please add ADZUNA_APP_ID and ADZUNA_APP_KEY "
+        "in Streamlit Secrets."
+    )
+
     st.stop()
 
 
-client = Groq(api_key=GROQ_API_KEY)
+client = Groq(
+    api_key=GROQ_API_KEY
+)
 
 
 # =========================================================
-# NAVBAR
-# =========================================================
-
-st.markdown("""
-<div class="navbar">
-
-    <div class="brand">
-        <div class="brand-icon">✦</div>
-        <div class="brand-name">Career<span>AI</span></div>
-    </div>
-
-</div>
-""", unsafe_allow_html=True)
-
-
-# =========================================================
-# HERO
-# =========================================================
-
-st.markdown("""
-<div class="hero">
-
-    <div class="hero-orb"></div>
-
-    <div class="hero-kicker">
-        AI Career Intelligence
-    </div>
-
-    <h1>
-        Find work that<br>
-        fits your skills.
-    </h1>
-
-    <p>
-        Upload your resume and let AI understand your
-        professional profile, identify your strongest
-        technical skills, and discover relevant job
-        opportunities.
-    </p>
-
-</div>
-""", unsafe_allow_html=True)
-
-
-# =========================================================
-# INPUT AREA
+# HEADER
 # =========================================================
 
 st.markdown(
-    '<div class="section-title">Build your career profile</div>',
+    '<div class="main-title">💜 CareerAI</div>',
     unsafe_allow_html=True
 )
 
 st.markdown(
-    '<div class="section-subtitle">Upload your resume and tell us where you want to work.</div>',
+    '<div class="subtitle">'
+    'Turn your resume into your next career opportunity.'
+    '</div>',
     unsafe_allow_html=True
 )
 
 
-col1, col2 = st.columns([1.45, 1], gap="large")
+# =========================================================
+# INTRO
+# =========================================================
 
+col1, col2, col3 = st.columns(3)
 
 with col1:
 
-    st.markdown("""
-    <div class="upload-card">
-
-        <div class="upload-title">
-            📄 Your Resume
-        </div>
-
-        <div class="upload-text">
-            PDF, DOCX or TXT files are supported.
-        </div>
-
-    </div>
-    """, unsafe_allow_html=True)
-
-    uploaded_file = st.file_uploader(
-        "Upload resume",
-        type=["pdf", "docx", "txt"],
-        label_visibility="collapsed"
+    st.markdown(
+        '<div class="card">'
+        '<h3>📄 Resume Analysis</h3>'
+        '<p>AI reads your resume and understands your technical profile.</p>'
+        '</div>',
+        unsafe_allow_html=True
     )
-
 
 with col2:
 
-    st.markdown("""
-    <div class="upload-card">
+    st.markdown(
+        '<div class="card">'
+        '<h3>🧠 Career Intelligence</h3>'
+        '<p>Identify the most suitable technical role and skills.</p>'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
-        <div class="upload-title">
-            📍 Preferred Location
-        </div>
+with col3:
 
-        <div class="upload-text">
-            Enter a city where you want to find jobs.
-        </div>
+    st.markdown(
+        '<div class="card">'
+        '<h3>💼 Job Discovery</h3>'
+        '<p>Find relevant job opportunities based on your profile.</p>'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
-    </div>
-    """, unsafe_allow_html=True)
+
+# =========================================================
+# INPUT SECTION
+# =========================================================
+
+st.markdown(
+    '<div class="section-title">Start your job search</div>',
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    '<div class="section-text">'
+    'Upload your resume and choose your preferred job location.'
+    '</div>',
+    unsafe_allow_html=True
+)
+
+
+input_col1, input_col2 = st.columns(2)
+
+
+with input_col1:
+
+    uploaded_file = st.file_uploader(
+        "Upload your resume",
+        type=["pdf", "docx", "txt"],
+        help="Supported formats: PDF, DOCX and TXT"
+    )
+
+
+with input_col2:
 
     location = st.text_input(
-        "Location",
-        placeholder="Example: Chennai",
-        label_visibility="collapsed"
+        "Preferred job location",
+        placeholder="Example: Chennai"
     )
 
 
 st.write("")
 
 
-analyze_button = st.button(
-    "✦  Analyze Resume & Discover Jobs",
+analyze = st.button(
+    "✨ Analyze Resume & Find Jobs",
+    type="primary",
     use_container_width=True
 )
 
 
 # =========================================================
-# RESUME READER
+# READ RESUME
 # =========================================================
 
 def read_resume(file):
 
     filename = file.name.lower()
 
+    # PDF
     if filename.endswith(".pdf"):
 
         reader = PdfReader(file)
@@ -588,19 +344,21 @@ def read_resume(file):
         return text.strip()
 
 
+    # DOCX
     elif filename.endswith(".docx"):
 
-        doc = Document(file)
+        document = Document(file)
 
         text = "\n".join(
             paragraph.text
-            for paragraph in doc.paragraphs
+            for paragraph in document.paragraphs
             if paragraph.text.strip()
         )
 
         return text.strip()
 
 
+    # TXT
     elif filename.endswith(".txt"):
 
         return file.read().decode(
@@ -609,7 +367,11 @@ def read_resume(file):
         )
 
 
-    raise ValueError("Unsupported file format.")
+    else:
+
+        raise ValueError(
+            "Unsupported file format."
+        )
 
 
 # =========================================================
@@ -621,14 +383,14 @@ def clean_resume(text):
     text = text.lower()
 
     text = re.sub(
-        r'\s+',
-        ' ',
+        r"\s+",
+        " ",
         text
     )
 
     text = re.sub(
-        r'[^a-zA-Z0-9+.#\s]',
-        ' ',
+        r"[^a-zA-Z0-9+.#\s]",
+        " ",
         text
     )
 
@@ -649,16 +411,16 @@ technical job role and important technical skills.
 
 Rules:
 
-- Return ONLY valid JSON.
-- Do not use markdown.
-- Do not explain your answer.
-- Do not invent information.
-- Choose ONE primary technical role.
-- Maximum 3 words for the role.
-- Maximum 6 technical skills.
-- Only select skills actually supported by the resume.
+1. Return ONLY valid JSON.
+2. Do not return markdown.
+3. Do not explain your answer.
+4. Do not invent information.
+5. Choose ONE primary technical role.
+6. Role must contain a maximum of 3 words.
+7. Select a maximum of 6 technical skills.
+8. Only select skills supported by the resume.
 
-Return exactly:
+Return exactly this structure:
 
 {{
     "role": "Data Scientist",
@@ -700,10 +462,14 @@ Resume:
 
 
 # =========================================================
-# JOB SEARCH
+# ADZUNA JOB SEARCH
 # =========================================================
 
-def search_jobs(role, skills, location):
+def search_jobs(
+    role,
+    skills,
+    location
+):
 
     url = (
         "https://api.adzuna.com/"
@@ -721,7 +487,6 @@ def search_jobs(role, skills, location):
         "where": location,
 
         "results_per_page": 10
-
     }
 
     response = requests.get(
@@ -733,7 +498,8 @@ def search_jobs(role, skills, location):
     if response.status_code != 200:
 
         raise Exception(
-            f"Adzuna API error: {response.status_code}"
+            f"Adzuna API error: "
+            f"{response.status_code}"
         )
 
     data = response.json()
@@ -745,36 +511,33 @@ def search_jobs(role, skills, location):
 
 
 # =========================================================
-# JOB CARD
+# SHOW JOB
 # =========================================================
 
-def display_job(number, job):
+def show_job(
+    number,
+    job
+):
 
-    title = html.escape(
-        job.get(
-            "title",
-            "Job title not available"
-        )
+    title = job.get(
+        "title",
+        "Job title unavailable"
     )
 
-    company = html.escape(
-        job.get(
-            "company",
-            {}
-        ).get(
-            "display_name",
-            "Company not specified"
-        )
+    company = job.get(
+        "company",
+        {}
+    ).get(
+        "display_name",
+        "Company not specified"
     )
 
-    job_location = html.escape(
-        job.get(
-            "location",
-            {}
-        ).get(
-            "display_name",
-            "Location not specified"
-        )
+    job_location = job.get(
+        "location",
+        {}
+    ).get(
+        "display_name",
+        "Location not specified"
     )
 
     description = job.get(
@@ -783,44 +546,43 @@ def display_job(number, job):
     )
 
     if len(description) > 280:
-        description = description[:280] + "..."
 
-    description = html.escape(description)
+        description = (
+            description[:280]
+            + "..."
+        )
+
+    apply_url = job.get(
+        "redirect_url",
+        "#"
+    )
+
 
     st.markdown(
         f"""
-        <div class="job-card">
+        <div class="job-box">
 
-            <div>
-                <span class="job-number">{number}</span>
-                <span class="job-title">{title}</span>
-            </div>
+        <div class="job-title">
+        {number}. {title}
+        </div>
 
-            <div class="job-company">
-                🏢 {company}
-            </div>
+        <div class="job-company">
+        🏢 {company}
+        </div>
 
-            <div class="job-location">
-                📍 {job_location}
-            </div>
+        <div class="job-location">
+        📍 {job_location}
+        </div>
 
-            <div class="match">
-                ✦ Relevant opportunity
-            </div>
-
-            <div class="job-description">
-                {description}
-            </div>
+        <div class="job-description">
+        {description}
+        </div>
 
         </div>
         """,
         unsafe_allow_html=True
     )
 
-    apply_url = job.get(
-        "redirect_url",
-        "#"
-    )
 
     st.link_button(
         "View & Apply →",
@@ -830,12 +592,16 @@ def display_job(number, job):
 
 
 # =========================================================
-# PROCESS
+# MAIN PROCESS
 # =========================================================
 
-if analyze_button:
+if analyze:
 
-    if not uploaded_file:
+    # -----------------------------------------------------
+    # VALIDATION
+    # -----------------------------------------------------
+
+    if uploaded_file is None:
 
         st.warning(
             "Please upload your resume first."
@@ -856,11 +622,11 @@ if analyze_button:
     try:
 
         # -------------------------------------------------
-        # READ RESUME
+        # STEP 1
         # -------------------------------------------------
 
         with st.spinner(
-            "Reading your resume..."
+            "📖 Reading your resume..."
         ):
 
             resume_text = read_resume(
@@ -871,18 +637,18 @@ if analyze_button:
         if not resume_text:
 
             st.error(
-                "No readable text was found in the resume."
+                "Could not extract text from your resume."
             )
 
             st.stop()
 
 
         # -------------------------------------------------
-        # AI ANALYSIS
+        # STEP 2
         # -------------------------------------------------
 
         with st.spinner(
-            "AI is understanding your career profile..."
+            "🧠 AI is analyzing your profile..."
         ):
 
             cleaned_text = clean_resume(
@@ -910,59 +676,95 @@ if analyze_button:
         # -------------------------------------------------
 
         st.markdown(
-            '<div class="section-title">Your AI Career Profile</div>',
+            '<div class="section-title">'
+            'Your AI Career Profile'
+            '</div>',
             unsafe_allow_html=True
         )
 
         st.markdown(
-            '<div class="section-subtitle">Based on the information found in your resume.</div>',
+            '<div class="section-text">'
+            'Based on the information identified in your resume.'
+            '</div>',
             unsafe_allow_html=True
         )
 
 
-        skill_html = ""
+        profile_col1, profile_col2 = st.columns(
+            [1, 2],
+            gap="large"
+        )
 
-        for skill in skills:
 
-            skill_html += (
-                f'<span class="skill-chip">'
-                f'{html.escape(str(skill))}'
-                f'</span>'
+        with profile_col1:
+
+            st.markdown(
+                f"""
+                <div class="role-box">
+
+                <div class="role-label">
+                Recommended Role
+                </div>
+
+                <div class="role-name">
+                {role}
+                </div>
+
+                </div>
+                """,
+                unsafe_allow_html=True
             )
 
 
+        with profile_col2:
+
+            st.markdown(
+                '<div class="card">'
+                '<b>🛠 Technical Skills Identified</b>'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+            skill_html = ""
+
+            for skill in skills:
+
+                skill_html += (
+                    f'<span class="skill">'
+                    f'{skill}'
+                    f'</span>'
+                )
+
+            st.markdown(
+                skill_html,
+                unsafe_allow_html=True
+            )
+
+
+        # -------------------------------------------------
+        # STEP 3
+        # -------------------------------------------------
+
+        st.markdown(
+            '<div class="section-title">'
+            'Recommended Opportunities'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
         st.markdown(
             f"""
-            <div class="profile-card">
-
-                <div class="profile-label">
-                    Recommended career direction
-                </div>
-
-                <div class="profile-role">
-                    {html.escape(str(role))}
-                </div>
-
-                <div class="profile-label">
-                    Skills detected
-                </div>
-
-                <div style="margin-top:10px;">
-                    {skill_html}
-                </div>
-
+            <div class="section-text">
+            Searching for <b>{role}</b> opportunities
+            in <b>{location}</b>.
             </div>
             """,
             unsafe_allow_html=True
         )
 
 
-        # -------------------------------------------------
-        # JOB SEARCH
-        # -------------------------------------------------
-
         with st.spinner(
-            f"Searching opportunities in {location}..."
+            "🔎 Finding relevant jobs..."
         ):
 
             jobs = search_jobs(
@@ -972,46 +774,26 @@ if analyze_button:
             )
 
 
-        # -------------------------------------------------
-        # JOB RESULTS
-        # -------------------------------------------------
-
-        st.markdown(
-            '<div class="section-title">Opportunities for you</div>',
-            unsafe_allow_html=True
-        )
-
-        st.markdown(
-            f"""
-            <div class="section-subtitle">
-                Showing jobs related to
-                <b>{html.escape(str(role))}</b>
-                in
-                <b>{html.escape(str(location))}</b>.
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-
         if not jobs:
 
             st.warning(
                 f"No matching jobs were found for {location}."
             )
 
+
         else:
 
             st.success(
-                f"Found {len(jobs)} opportunities."
+                f"Found {len(jobs)} job opportunities."
             )
+
 
             for index, job in enumerate(
                 jobs,
                 start=1
             ):
 
-                display_job(
+                show_job(
                     index,
                     job
                 )
@@ -1020,107 +802,30 @@ if analyze_button:
     except json.JSONDecodeError:
 
         st.error(
-            "The AI returned an unexpected response. Please try again."
+            "AI returned an unexpected response. "
+            "Please try again."
         )
 
 
-    except Exception as e:
+    except Exception as error:
 
         st.error(
             "Something went wrong while processing your request."
         )
 
-        st.exception(e)
-
-
-# =========================================================
-# HOW IT WORKS
-# =========================================================
-
-if not analyze_button:
-
-    st.markdown(
-        '<div class="section-title">How CareerAI works</div>',
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        '<div class="section-subtitle">Three simple steps from resume to opportunity.</div>',
-        unsafe_allow_html=True
-    )
-
-
-    c1, c2, c3 = st.columns(3, gap="medium")
-
-
-    with c1:
-
-        st.markdown("""
-        <div class="info-card">
-
-            <div class="info-icon">📄</div>
-
-            <div class="info-title">
-                01 — Upload
-            </div>
-
-            <div class="info-text">
-                Upload your resume in PDF, DOCX or TXT format.
-            </div>
-
-        </div>
-        """, unsafe_allow_html=True)
-
-
-    with c2:
-
-        st.markdown("""
-        <div class="info-card">
-
-            <div class="info-icon">🧠</div>
-
-            <div class="info-title">
-                02 — Understand
-            </div>
-
-            <div class="info-text">
-                AI analyzes your resume and identifies your
-                strongest technical career direction.
-            </div>
-
-        </div>
-        """, unsafe_allow_html=True)
-
-
-    with c3:
-
-        st.markdown("""
-        <div class="info-card">
-
-            <div class="info-icon">✦</div>
-
-            <div class="info-title">
-                03 — Discover
-            </div>
-
-            <div class="info-text">
-                Find relevant job opportunities based on
-                your role and preferred location.
-            </div>
-
-        </div>
-        """, unsafe_allow_html=True)
+        st.exception(error)
 
 
 # =========================================================
 # FOOTER
 # =========================================================
 
-st.markdown("""
-<div class="footer">
-
-    CareerAI · AI-Powered Job Discovery<br>
-    Resume Intelligence + Job Search
-
-</div>
-""", unsafe_allow_html=True)
+st.markdown(
+    """
+    <div class="footer">
+    CareerAI · AI-Powered Job Recommendation System<br>
+    Resume Analysis • AI Career Matching • Job Discovery
+    </div>
+    """,
+    unsafe_allow_html=True
+)
