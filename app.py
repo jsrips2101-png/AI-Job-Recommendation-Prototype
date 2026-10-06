@@ -447,40 +447,22 @@ Resume:
 
         return None, str(e)
 
-
 def search_jobs(role, skills, location):
 
     if not ADZUNA_APP_ID or not ADZUNA_APP_KEY:
-
         return [], "Adzuna credentials are missing."
 
     try:
 
-        url = (
-            "https://api.adzuna.com/v1/api/jobs/in/search/1"
-        )
-
-        skill_text = " ".join(
-            str(skill)
-            for skill in skills[:3]
-        )
-
-        search_term = (
-            f"{role} {skill_text}"
-        ).strip()
+        url = "https://api.adzuna.com/v1/api/jobs/in/search/1"
 
         params = {
-
             "app_id": ADZUNA_APP_ID,
-
             "app_key": ADZUNA_APP_KEY,
-
-            "what": search_term,
-
+            "what": role,
             "where": location,
-
-            "results_per_page": 10,
-
+            "results_per_page": 20,
+            "sort_by": "relevance",
             "content-type": "application/json"
         }
 
@@ -494,10 +476,9 @@ def search_jobs(role, skills, location):
 
         data = response.json()
 
-        return data.get(
-            "results",
-            []
-        ), None
+        jobs = data.get("results", [])
+
+        return jobs[:10], None
 
     except Exception as e:
 
