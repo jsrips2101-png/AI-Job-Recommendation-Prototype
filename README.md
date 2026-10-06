@@ -1,1 +1,1 @@
-# AI-Job-Recommendation-Prototype
+# ai-job-recommendation-system
